@@ -1,0 +1,28 @@
+# Env
+.env
+.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# ChromaDB
+chroma_data/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Reports adapter (volumineux)
+reports/telecom_lora_adapter-*/

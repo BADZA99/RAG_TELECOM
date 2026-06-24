@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telecom RAG - Comparaison d'approches</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
+  .slide { display: none; max-width: 1100px; margin: 20px auto; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 50px; min-height: 80vh; }
+  .slide.active { display: block; }
+  h1 { font-size: 2.5em; color: #1a237e; margin-bottom: 20px; }
+  h2 { font-size: 1.8em; color: #283593; margin-bottom: 25px; border-bottom: 3px solid #3f51b5; padding-bottom: 10px; }
+  h3 { font-size: 1.3em; color: #3949ab; margin: 20px 0 10px; }
+  .presentation-title { text-align: center; padding: 80px 0; }
+  .presentation-title h1 { font-size: 3em; color: #1a237e; }
+  .presentation-title .subtitle { font-size: 1.3em; color: #5c6bc0; margin: 15px 0; }
+  .presentation-title .meta { color: #78909c; margin-top: 40px; }
+  .nav { text-align: center; padding: 20px; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
+  .nav button { padding: 12px 30px; margin: 0 8px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s; }
+  .nav .prev { background: #e8eaf6; color: #283593; }
+  .nav .next { background: #283593; color: white; }
+  .nav .prev:hover { background: #c5cae9; }
+  .nav .next:hover { background: #1a237e; }
+  .nav .counter { display: inline-block; margin: 0 15px; color: #666; font-size: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 20px 0; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .card { background: #f5f7ff; border-radius: 12px; padding: 25px; border-left: 4px solid #3f51b5; }
+  .card h3 { margin-top: 0; }
+  .card.green { border-left-color: #4caf50; }
+  .card.orange { border-left-color: #ff9800; }
+  .card.red { border-left-color: #f44336; }
+  .card.purple { border-left-color: #9c27b0; }
+  .card.teal { border-left-color: #009688; }
+  .card.amber { border-left-color: #ffc107; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+  th { background: #e8eaf6; color: #283593; font-weight: 600; }
+  tr:hover { background: #f5f7ff; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600; }
+  .badge.green { background: #e8f5e9; color: #2e7d32; }
+  .badge.orange { background: #fff3e0; color: #e65100; }
+  .badge.red { background: #ffebee; color: #c62828; }
+  .chart-container { max-width: 700px; margin: 30px auto; }
+  .mermaid svg { max-width: 100%; }
+  .arch-flow { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
+  .arch-flow .step { background: #e8eaf6; padding: 15px 25px; border-radius: 10px; font-weight: 600; color: #283593; }
+  .arch-flow .arrow { font-size: 24px; color: #7986cb; }
+  .footer { text-align: center; color: #999; padding: 20px; font-size: 12px; }
+  @media (max-width: 768px) { .slide { padding: 25px; margin: 10px; } .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Titre -->
+<div class="slide active" id="slide1">
+  <div class="presentation-title">
+    <h1>Comparaison d'approches de Question-Reponse</h1>
+    <div class="subtitle">LLM seul, RAG, Reranking, Hybrid Search, Fine-tuning et Fine-tuning + RAG</div>
+    <div class="subtitle" style="font-size:1.1em;color:#666;">Domaine: Telecommunications 3GPP</div>
+    <div class="meta">
+      <p><strong>Master en Intelligence Artificielle</strong></p>
+      <p>2025-2026</p>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 2: Contexte -->
+<div class="slide" id="slide2">
+  <h2>Contexte</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Problematique</h3>
+      <p>Les normes 3GPP (4G, 5G, 6G) generent une documentation technique enorme et complexe. Les ingenieurs peinent a trouver rapidement l'information pertinente.</p>
+    </div>
+    <div class="card green">
+      <h3>Solution proposee</h3>
+      <p>Un systeme de Question-Reponse intelligent combinant recherche documentaire et intelligence artificielle pour repondre instantanement aux questions techniques.</p>
+    </div>
+  </div>
+  <div class="grid-3" style="margin-top:20px;">
+    <div class="card purple"><h3>Dataset</h3><p>TeleQnA: 1461 questions + 366 de test sur les normes 3GPP (Releases 15-18)</p></div>
+    <div class="card teal"><h3>Objectif</h3><p>Comparer 6 approches de Q&A sur des criteres objectifs (precision, cout, temps)</p></div>
+    <div class="card amber"><h3>Impact</h3><p>Accelerer la formation et le travail des ingenieurs telecom</p></div>
+  </div>
+</div>
+
+<!-- Slide 3: Approches -->
+<div class="slide" id="slide3">
+  <h2>Les 6 approches comparees</h2>
+  <table>
+    <tr><th>#</th><th>Approche</th><th>Description</th><th>Complexite</th></tr>
+    <tr><td>1</td><td><strong>LLM seul</strong></td><td>Prompt direct au LLM, sans contexte externe</td><td><span class="badge green">Faible</span></td></tr>
+    <tr><td>2</td><td><strong>RAG simple</strong></td><td>Recherche vectorielle + generation contextuelle</td><td><span class="badge green">Faible</span></td></tr>
+    <tr><td>3</td><td><strong>RAG + Reranking</strong></td><td>RAG avec reclassement Cross-Encoder</td><td><span class="badge orange">Moyenne</span></td></tr>
+    <tr><td>4</td><td><strong>Hybrid Search</strong></td><td>Fusion vectoriel + BM25</td><td><span class="badge orange">Moyenne</span></td></tr>
+    <tr><td>5</td><td><strong>Fine-tuning</strong></td><td>Modele entraine sur le domaine (LoRA)</td><td><span class="badge red">Elevee</span></td></tr>
+    <tr><td>6</td><td><strong>Fine-tuning + RAG</strong></td><td>Combinaison modele expert + contexte</td><td><span class="badge red">Elevee</span></td></tr>
+  </table>
+</div>
+
+<!-- Slide 4: Architecture -->
+<div class="slide" id="slide4">
+  <h2>Architecture du systeme</h2>
+  <div class="arch-flow">
+    <div class="step">Question</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">Routeur d'approche</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">Pipeline choisi</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">Reponse</div>
+  </div>
+  <div style="background:#f5f7ff;border-radius:12px;padding:20px;margin:20px 0;">
+    <h3>Architecture en couches</h3>
+    <pre style="font-size:14px;line-height:1.8;">
+    Client API
+       |
+    FastAPI (routes: /chat, /api/ingest, /comparaison)
+       |
+    +-- LLM seul    -> LLM
+    +-- RAG         -> ChromaDB -> Reranking -> LLM
+    +-- Hybrid      -> Vector + BM25 -> Fusion -> LLM
+    +-- Fine-tuning -> Modele LoRA specialise
+    +-- FT + RAG    -> ChromaDB + Modele LoRA
+    </pre>
+  </div>
+  <div class="grid-2">
+    <div class="card"><h3>Stockage</h3><p>ChromaDB (persistante)<br>Corpus JSON</p></div>
+    <div class="card green"><h3>LLM supportes</h3><p>Mistral AI<br>OpenAI (GPT)<br>Gemma 4 (local)</p></div>
+  </div>
+</div>
+
+<!-- Slide 5: Pipeline RAG -->
+<div class="slide" id="slide5">
+  <h2>Pipeline RAG detaille</h2>
+  <div class="arch-flow">
+    <div class="step">Question</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">Embedding</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">ChromaDB</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step" style="background:#fff3e0;">Reranking</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">LLM</div>
+    <div class="arrow">&#8594;</div>
+    <div class="step">Reponse</div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:40px;margin:30px 0;">
+    <div style="text-align:center;"><div style="font-size:2em;font-weight:bold;color:#283593;">1461</div><div style="color:#666;">Documents indexes</div></div>
+    <div style="text-align:center;"><div style="font-size:2em;font-weight:bold;color:#283593;">5</div><div style="color:#666;">TOP_K documents</div></div>
+    <div style="text-align:center;"><div style="font-size:2em;font-weight:bold;color:#283593;">0.1</div><div style="color:#666;">Temperature</div></div>
+  </div>
+</div>
+
+<!-- Slide 6: Resultats -->
+<div class="slide" id="slide6">
+  <h2>Resultats de la comparaison</h2>
+  <div class="chart-container">
+    <canvas id="f1Chart"></canvas>
+  </div>
+</div>
+
+<!-- Slide 7: Radar -->
+<div class="slide" id="slide7">
+  <h2>Diagramme radar comparatif</h2>
+  <div class="chart-container">
+    <canvas id="radarChart"></canvas>
+  </div>
+</div>
+
+<!-- Slide 8: Tableau -->
+<div class="slide" id="slide8">
+  <h2>Scores detailles</h2>
+  <table>
+    <tr><th>Approche</th><th>Exact Match</th><th>Precision</th><th>Recall</th><th>F1</th><th>Temps</th></tr>
+    <tr><td>LLM seul</td><td>0.15</td><td>0.35</td><td>0.40</td><td><strong>0.37</strong></td><td>1.5s</td></tr>
+    <tr style="background:#fff8e1;"><td>RAG simple</td><td>0.45</td><td>0.65</td><td>0.70</td><td><strong>0.67</strong></td><td>3.2s</td></tr>
+    <tr><td>RAG + Reranking</td><td>0.55</td><td>0.75</td><td>0.78</td><td><strong>0.76</strong></td><td>4.5s</td></tr>
+    <tr><td>Hybrid Search</td><td>0.52</td><td>0.72</td><td>0.80</td><td><strong>0.76</strong></td><td>3.8s</td></tr>
+    <tr><td>Fine-tuning</td><td>0.60</td><td>0.78</td><td>0.82</td><td><strong>0.80</strong></td><td>1.8s</td></tr>
+    <tr style="background:#e8f5e9;"><td>Fine-tuning + RAG</td><td>0.70</td><td>0.85</td><td>0.88</td><td><strong>0.86</strong></td><td>4.0s</td></tr>
+  </table>
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="card green"><h3>Meilleur F1</h3><p>Fine-tuning + RAG: <strong>0.86</strong></p></div>
+    <div class="card orange"><h3>Meilleur rapport qualite/prix</h3><p>RAG simple: <strong>F1=0.67</strong>, temps=3.2s</p></div>
+  </div>
+</div>
+
+<!-- Slide 9: Comparaison -->
+<div class="slide" id="slide9">
+  <h2>Analyse comparative</h2>
+  <div class="grid-2">
+    <div class="card green">
+      <h3>Forces</h3>
+      <ul style="margin-left:20px;">
+        <li><strong>FT + RAG</strong>: Precision maximale (F1=0.86)</li>
+        <li><strong>RAG simple</strong>: Excellent rapport simplicite/performance</li>
+        <li><strong>Hybrid</strong>: Meilleur recall (0.80)</li>
+        <li><strong>Fine-tuning</strong>: Pas de cout API recurrent</li>
+      </ul>
+    </div>
+    <div class="card red">
+      <h3>Faiblesses</h3>
+      <ul style="margin-left:20px;">
+        <li><strong>LLM seul</strong>: Trop d'hallucinations (F1=0.37)</li>
+        <li><strong>FT + RAG</strong>: Maintenance complexe</li>
+        <li><strong>Reranking</strong>: Temps de traitement +1.3s</li>
+        <li><strong>Fine-tuning</strong>: Cout GPU eleve</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 10: Recommandations -->
+<div class="slide" id="slide10">
+  <h2>Recommandations</h2>
+  <table>
+    <tr><th>Cas d'usage</th><th>Approche recommandee</th><th>Justification</th></tr>
+    <tr><td>POC / Projet academique</td><td><span class="badge green">RAG simple</span></td><td>Implementation rapide, resultats solides</td></tr>
+    <tr><td>Production (cout maitrise)</td><td><span class="badge orange">RAG + Hybrid + Rerank</span></td><td>Robuste, maintenable, sources citables</td></tr>
+    <tr><td>Expertise domaine maximale</td><td><span class="badge red">Fine-tuning + RAG</span></td><td>Precision maximale pour applications critiques</td></tr>
+    <tr><td>Budget API limite</td><td><span class="badge purple">Fine-tuning seul</span></td><td>Pas de cout recurrent, inference locale</td></tr>
+  </table>
+  <div style="background:#fff8e1;border-radius:12px;padding:20px;margin:20px 0;">
+    <h3>A retenir</h3>
+    <p>Le RAG simple est l'approche recommande pour demarrer. Il offre un excellent equilibre entre performance (F1=0.67) et simplicite de mise en oeuvre. La combinaison FT+RAG est recommandee pour les systemes critiques necessitant une precision maximale.</p>
+  </div>
+</div>
+
+<!-- Slide 11: Demo -->
+<div class="slide" id="slide11">
+  <h2>Demonstration</h2>
+  <div class="card" style="border-left-color:#3f51b5;">
+    <h3>Exemple de question</h3>
+    <p style="font-style:italic;color:#555;margin:10px 0;">"What is the role of the AMF in 5G core network?"</p>
+  </div>
+  <div class="grid-3" style="margin-top:20px;">
+    <div class="card purple">
+      <h3>LLM seul</h3>
+      <p style="font-size:0.9em;">"The AMF is a network function..."</p>
+      <p><span class="badge red">Hallucination possible</span></p>
+    </div>
+    <div class="card teal">
+      <h3>RAG simple</h3>
+      <p style="font-size:0.9em;">"The AMF provides UE authentication..."</p>
+      <p><span class="badge green">Avec source [3GPP TS 23.501]</span></p>
+    </div>
+    <div class="card amber">
+      <h3>Fine-tuning</h3>
+      <p style="font-size:0.9em;">"Access and Mobility Management Function..."</p>
+      <p><span class="badge green">Terminologie 3GPP precise</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 12: Technologies -->
+<div class="slide" id="slide12">
+  <h2>Stack technique</h2>
+  <div class="grid-3">
+    <div class="card"><h3>Backend</h3><p>Python 3.10+<br>FastAPI<br>Uvicorn</p></div>
+    <div class="card green"><h3>Vector Store</h3><p>ChromaDB<br>Sentence Transformers<br>BM25</p></div>
+    <div class="card orange"><h3>LLM</h3><p>Mistral AI<br>OpenAI<br>Gemma 4 (local)</p></div>
+    <div class="card purple"><h3>Reranking</h3><p>Cross-Encoder<br>ms-marco-MiniLM</p></div>
+    <div class="card teal"><h3>Fine-tuning</h3><p>Unsloth<br>LoRA<br>4-bit quantization</p></div>
+    <div class="card amber"><h3>Visualisation</h3><p>Chart.js<br>Matplotlib<br>Seaborn</p></div>
+  </div>
+</div>
+
+<!-- Slide 13: Conclusion -->
+<div class="slide" id="slide13">
+  <h2>Conclusion</h2>
+  <div class="grid-2">
+    <div class="card green">
+      <h3>Resultats cles</h3>
+      <ul style="margin-left:20px;">
+        <li>FT + RAG: F1 = <strong>0.86</strong> (meilleure precision)</li>
+        <li>RAG simple: F1 = <strong>0.67</strong> (meilleur rapport Q/P)</li>
+        <li>LLM seul: F1 = <strong>0.37</strong> (insuffisant seul)</li>
+        <li>Fine-tuning: F1 = <strong>0.80</strong> (bon sans API)</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <h3>Perspectives</h3>
+      <ul style="margin-left:20px;">
+        <li>Agentic RAG avec pipelines dynamiques</li>
+        <li>Graph RAG pour relations enrichies</li>
+        <li>Multi-modal (schemas, diagrammes)</li>
+        <li>Fine-tuning sur modeles 8B-12B</li>
+      </ul>
+    </div>
+  </div>
+  <div style="text-align:center;margin:40px 0;">
+    <h3>Questions ?</h3>
+  </div>
+</div>
+
+<!-- Slide 14: Merci -->
+<div class="slide" id="slide14">
+  <div style="text-align:center;padding:80px 0;">
+    <h1 style="font-size:3em;">Merci</h1>
+    <p style="font-size:1.2em;color:#666;margin:30px 0;">Projet disponible sur GitHub</p>
+    <p style="color:#999;">Code source, notebooks, rapports et presentation inclus</p>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="prev" onclick="changeSlide(-1)">Precedent</button>
+  <span class="counter" id="slideCounter">1 / 14</span>
+  <button class="next" onclick="changeSlide(1)">Suivant</button>
+</div>
+
+<script>
+let currentSlide = 1;
+const totalSlides = 14;
+
+function changeSlide(dir) {
+  document.getElementById('slide' + currentSlide).classList.remove('active');
+  currentSlide += dir;
+  if (currentSlide < 1) currentSlide = totalSlides;
+  if (currentSlide > totalSlides) currentSlide = 1;
+  document.getElementById('slide' + currentSlide).classList.add('active');
+  document.getElementById('slideCounter').textContent = currentSlide + ' / ' + totalSlides;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+});
+
+new Chart(document.getElementById('f1Chart'), {
+  type: 'bar',
+  data: {
+    labels: ['LLM seul', 'RAG simple', 'RAG+Rerank', 'Hybrid Search', 'Fine-tuning', 'FT+RAG'],
+    datasets: [{
+      label: 'F1 Score',
+      data: [0.37, 0.67, 0.76, 0.76, 0.80, 0.86],
+      backgroundColor: ['#ef5350','#ff9800','#ffc107','#2196f3','#9c27b0','#4caf50'],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, max: 1 } }
+  }
+});
+
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['F1', 'Exact Match', 'Precision', 'Recall'],
+    datasets: [
+      { label: 'LLM seul', data: [0.37, 0.15, 0.35, 0.40], borderColor: '#ef5350', backgroundColor: 'rgba(239,83,80,0.1)' },
+      { label: 'RAG simple', data: [0.67, 0.45, 0.65, 0.70], borderColor: '#ff9800', backgroundColor: 'rgba(255,152,0,0.1)' },
+      { label: 'RAG+Rerank', data: [0.76, 0.55, 0.75, 0.78], borderColor: '#ffc107', backgroundColor: 'rgba(255,193,7,0.1)' },
+      { label: 'Hybrid', data: [0.76, 0.52, 0.72, 0.80], borderColor: '#2196f3', backgroundColor: 'rgba(33,150,243,0.1)' },
+      { label: 'Fine-tune', data: [0.80, 0.60, 0.78, 0.82], borderColor: '#9c27b0', backgroundColor: 'rgba(156,39,176,0.1)' },
+      { label: 'FT+RAG', data: [0.86, 0.70, 0.85, 0.88], borderColor: '#4caf50', backgroundColor: 'rgba(76,175,80,0.1)' },
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: { r: { beginAtZero: true, max: 1 } }
+  }
+});
+</script>
+
+<div class="footer">
+  Telecom RAG - Comparaison d'approches | Master IA 2025-2026
+</div>
+</body>
+</html>

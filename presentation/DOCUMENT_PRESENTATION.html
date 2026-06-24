@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soutenance - Telecom RAG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #f8fafc; overflow: hidden; height: 100vh; width: 100vw; color: #1e293b; }
+  .slides-wrapper { display: flex; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); height: 100vh; }
+  .slide { min-width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 50px 80px; position: relative; }
+  .slide-content { max-width: 1100px; width: 100%; }
+  h1 { font-size: 3.2em; font-weight: 700; background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+  h2 { font-size: 2em; font-weight: 600; color: #2563eb; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+  h3 { font-size: 1.2em; font-weight: 600; color: #475569; margin-bottom: 10px; }
+  .subtitle { font-size: 1.3em; color: #64748b; margin: 10px 0; }
+  .meta { color: #94a3b8; margin-top: 20px; }
+  .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; background: rgba(255,255,255,0.95); padding: 10px 20px; border-radius: 50px; border: 1px solid #e2e8f0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .nav button { padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+  .nav .prev { background: #f1f5f9; color: #64748b; }
+  .nav .next { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; }
+  .nav .prev:hover { background: #e2e8f0; }
+  .nav .next:hover { opacity: 0.9; }
+  .nav .counter { color: #94a3b8; font-size: 14px; min-width: 50px; text-align: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 15px 0; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; margin: 15px 0; }
+  .card { background: #ffffff; border-radius: 10px; padding: 18px; border: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .card h3 { color: #2563eb; margin-top: 0; }
+  .card p { color: #475569; line-height: 1.5; }
+  .card .big { font-size: 2.2em; font-weight: 700; color: #2563eb; }
+  .card .label { font-size: 0.85em; color: #94a3b8; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.78em; font-weight: 600; }
+  .badge.faible { background: #dcfce7; color: #166534; }
+  .badge.moyen { background: #fef3c7; color: #92400e; }
+  .badge.eleve { background: #fce4ec; color: #9b1c1c; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.85em; }
+  th { background: #f1f5f9; color: #2563eb; padding: 10px; text-align: left; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+  td { padding: 10px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+  .flow-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 15px 0; flex-wrap: wrap; }
+  .flow-step { background: #ffffff; border: 1px solid #e2e8f0; padding: 10px 16px; border-radius: 8px; font-size: 0.82em; color: #64748b; }
+  .flow-arrow { color: #2563eb; font-size: 1.1em; }
+  .flow-step.active { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; border-color: transparent; }
+  .accent-bar { width: 100%; height: 4px; background: linear-gradient(90deg, #2563eb, #7c3aed, #ec4899); border-radius: 2px; margin: 20px 0; }
+  .footer { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); color: #cbd5e1; font-size: 11px; }
+  .slide-img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 6px; background: #f8fafc; padding: 8px; }
+  @media (max-width: 768px) { .slide { padding: 20px; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } h1 { font-size: 2em; } h2 { font-size: 1.3em; } }
+</style>
+</head>
+<body>
+
+<div class="slides-wrapper" id="slidesWrapper">
+  <div class="slide">
+    <div class="slide-content" style="text-align:center;">
+      <h1 style="font-size:3.5em;">Telecom RAG</h1>
+      <h2 style="border:none;font-size:1.5em;text-align:center;">Comparaison de 6 approches de Q&A<br>pour les telecommunications 3GPP</h2>
+      <div class="accent-bar" style="max-width:300px;margin:30px auto;"></div>
+      <div class="subtitle">Papa Badara Ndiaye</div>
+      <div class="subtitle">Master en GL</div>
+      <div class="subtitle" style="font-size:0.9em;">2025-2026</div>
+      <div class="meta">Dataset TeleQnA &bull; Mistral AI &bull; ChromaDB &bull; Unsloth</div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Contexte</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Probleme</h3>
+          <p>Les normes 3GPP (4G, 5G, 6G) font des milliers de pages. Les ingenieurs perdent du temps a chercher l'information.</p>
+        </div>
+        <div class="card">
+          <h3>Objectif</h3>
+          <p>Trouver la meilleure approche de Q&A pour le domaine telecom entre 6 methodes differentes.</p>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:20px;">
+        <div class="card"><div class="big">1461</div><div class="label">Questions</div></div>
+        <div class="card"><div class="big">366</div><div class="label">Questions test</div></div>
+        <div class="card"><div class="big">3</div><div class="label">Modeles LLM</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Les 6 approches</h2>
+      <div class="grid-3">
+        <div class="card"><h3>1. LLM seul</h3><p>Prompt direct, sans contexte.<br><span class="badge faible">Simple</span></p></div>
+        <div class="card"><h3>2. RAG simple</h3><p>ChromaDB + generation contextuelle.<br><span class="badge faible">Simple</span></p></div>
+        <div class="card"><h3>3. RAG + Reranking</h3><p>Reclassement par Cross-Encoder.<br><span class="badge moyen">Moyen</span></p></div>
+        <div class="card"><h3>4. Hybrid Search</h3><p>Vector Search + BM25.<br><span class="badge moyen">Moyen</span></p></div>
+        <div class="card"><h3>5. Fine-tuning</h3><p>Modele entraine sur TeleQnA.<br><span class="badge eleve">Complexe</span></p></div>
+        <div class="card"><h3>6. FT + RAG</h3><p>Modele expert + contexte.<br><span class="badge eleve">Complexe</span></p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Architecture</h2>
+      <div class="flow-row">
+        <div class="flow-step active">Question</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">Routeur</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">Pipeline</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">ChromaDB</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">LLM</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step active">Reponse</div>
+      </div>
+      <div class="grid-2" style="margin-top:30px;">
+        <div class="card"><h3>Frontend</h3><p>React + Vite<br>Selection modele & approche</p></div>
+        <div class="card"><h3>Backend</h3><p>FastAPI (Python)<br>ChromaDB &bull; Sentence Transformers &bull; Cross-Encoder &bull; BM25</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Stack technique</h2>
+      <div class="grid-4">
+        <div class="card"><h3>API</h3><p>FastAPI<br>Uvicorn<br>Python 3.10</p></div>
+        <div class="card"><h3>Vector Store</h3><p>ChromaDB<br>embeddings 384d</p></div>
+        <div class="card"><h3>Embeddings</h3><p>paraphrase-multilingual<br>MiniLM-L12-v2</p></div>
+        <div class="card"><h3>Reranking</h3><p>Cross-Encoder<br>ms-marco-MiniLM</p></div>
+        <div class="card"><h3>LLM</h3><p>Mistral Small<br>Mistral Large<br>Phi-3 fine-tuned</p></div>
+        <div class="card"><h3>Fine-tuning</h3><p>Unsloth<br>LoRA (r=16)</p></div>
+        <div class="card"><h3>Frontend</h3><p>React 18<br>Vite 5</p></div>
+        <div class="card"><h3>Graphiques</h3><p>Matplotlib<br>Seaborn</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Pipeline RAG</h2>
+      <div class="flow-row">
+        <div class="flow-step">Question</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">Embedding</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step active">ChromaDB</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">TOP_K docs</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">Contexte</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">LLM</div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step active">Reponse</div>
+      </div>
+      <div class="grid-3" style="margin-top:30px;">
+        <div class="card"><h3>RAG simple</h3><p>TOP_K=4<br>Recherche cosine</p></div>
+        <div class="card"><h3>+ Reranking</h3><p>TOP_K=10 initial<br>TOP_K=4 final</p></div>
+        <div class="card"><h3>Hybrid Search</h3><p>0.7 Vector + 0.3 BM25</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Metriques</h2>
+      <div class="grid-2">
+        <div class="card">
+          <p style="font-size:2.5em;font-weight:700;color:#2563eb;text-align:center;">EM</p>
+          <p><strong>Exact Match</strong> : le numero de l'option correcte est-il dans la prediction ? Metrique binaire.</p>
+        </div>
+        <div class="card">
+          <p style="font-size:2.5em;font-weight:700;color:#7c3aed;text-align:center;">F1</p>
+          <p><strong>F1 semantique</strong> : similarite cosinus entre la prediction et la reponse attendue. Metrique continue (0 a 1).</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:15px;text-align:center;">
+        <p>EM = precision exacte (QCM). F1 = qualite semantique (redaction). Complementaires.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Modeles de langage</h2>
+      <div class="grid-2">
+        <div class="card" style="border-left:4px solid #2563eb;">
+          <h3>Mistral Small & Large</h3>
+          <p>API stable, pas de GPU requis. Vocabulaire 3GPP capte. Deux tailles pour evaluer l'impact sur les QCM.</p>
+        </div>
+        <div class="card" style="border-left:4px solid #7c3aed;">
+          <h3>Phi-3 Mini</h3>
+          <p>Modele compact (3.8B) fine-tunable sur GPU T4 (Colab). Inference locale 0.4s. Pas de cout API.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;text-align:center;">
+        <p><strong>Comparaison :</strong> API cloud (Mistral) vs modele specialise local (Phi-3).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Resultats F1</h2>
+      <div class="grid-2" style="gap:14px;margin:8px 0;">
+        <div class="card" style="padding:10px;">
+          <img src="graphiques/f1_modele_approche.png" class="slide-img" alt="F1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Scores detailles</h2>
+      <table>
+        <tr><th>Modele</th><th>Approche</th><th>EM</th><th>F1</th><th>Temps</th></tr>
+        <tr><td rowspan="4"><strong>Mistral Small</strong></td><td>LLM seul</td><td><strong>58%</strong></td><td>0.44</td><td>2.0s</td></tr>
+        <tr><td>RAG simple</td><td>42%</td><td><strong>0.48</strong></td><td>1.5s</td></tr>
+        <tr><td>RAG + Reranking</td><td>44%</td><td><strong>0.49</strong></td><td>1.7s</td></tr>
+        <tr><td>Hybrid Search</td><td>38%</td><td>0.47</td><td>1.5s</td></tr>
+        <tr><td rowspan="4"><strong>Mistral Large</strong></td><td>LLM seul</td><td>28%</td><td>0.15</td><td>1.5s</td></tr>
+        <tr><td>RAG simple</td><td>26%</td><td>0.12</td><td>1.1s</td></tr>
+        <tr><td>RAG + Reranking</td><td>22%</td><td>0.16</td><td>1.9s</td></tr>
+        <tr><td>Hybrid Search</td><td>24%</td><td>0.12</td><td>1.1s</td></tr>
+        <tr><td><strong>Fine-tuning (Phi-3)</strong></td><td>FT seul</td><td><strong>60%</strong></td><td>0.37</td><td>0.4s</td></tr>
+        <tr><td><strong>FT + RAG (Phi-3)</strong></td><td>FT+RAG</td><td>30%</td><td><strong>0.41</strong></td><td>5.1s</td></tr>
+      </table>
+      <div class="grid-4" style="margin-top:12px;gap:10px;">
+        <div class="card" style="padding:10px;text-align:center;"><span style="font-size:0.75em;color:#94a3b8;">Meilleur EM</span><br><span style="font-size:1.1em;font-weight:700;color:#2563eb;">FT seul: 60%</span></div>
+        <div class="card" style="padding:10px;text-align:center;"><span style="font-size:0.75em;color:#94a3b8;">Meilleur F1</span><br><span style="font-size:1.1em;font-weight:700;color:#2563eb;">Small+Rerank: 0.49</span></div>
+        <div class="card" style="padding:10px;text-align:center;"><span style="font-size:0.75em;color:#94a3b8;">Plus rapide</span><br><span style="font-size:1.1em;font-weight:700;color:#16a34a;">FT seul: 0.4s</span></div>
+        <div class="card" style="padding:10px;text-align:center;"><span style="font-size:0.75em;color:#94a3b8;">FT+RAG vs API</span><br><span style="font-size:1.1em;font-weight:700;color:#7c3aed;">0.41 vs 0.49</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Mistral Small vs Large</h2>
+      <div class="grid-2">
+        <div class="card">
+          <img src="graphiques/temps_modele_approche.png" class="slide-img" alt="Temps">
+        </div>
+        <div class="card">
+          <img src="graphiques/radar_modeles.png" class="slide-img" alt="Radar">
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:8px;gap:10px;">
+        <div class="card" style="padding:10px 14px;text-align:center;"><span style="font-weight:600;color:#2563eb;">Mistral Small</span><br><span style="font-size:0.85em;">EM=45% | F1=0.47 | 1.7s</span></div>
+        <div class="card" style="padding:10px 14px;text-align:center;"><span style="font-weight:600;color:#7c3aed;">Mistral Large</span><br><span style="font-size:0.85em;">EM=25% | F1=0.14 | 1.4s</span></div>
+        <div class="card" style="padding:10px 14px;text-align:center;"><span style="font-weight:600;color:#16a34a;">Phi-3 FT</span><br><span style="font-size:0.85em;">EM=60% | F1=0.37 | 0.4s</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Analyse</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Forces</h3>
+          <ul style="margin-left:20px;color:#475569;line-height:1.8;">
+            <li><strong>Mistral Small :</strong> Meilleur F1 (0.49)</li>
+            <li><strong>RAG + Reranking :</strong> Contexte le plus pertinent</li>
+            <li><strong>FT seul :</strong> EM=60%, 0.4s, pas de cout API</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Faiblesses</h3>
+          <ul style="margin-left:20px;color:#475569;line-height:1.8;">
+            <li><strong>Mistral Large :</strong> F1=0.14, trop "creatif"</li>
+            <li><strong>Hybrid Search :</strong> Aucun gain</li>
+            <li><strong>FT + RAG :</strong> Lent (5.1s)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Recommandations</h2>
+      <table>
+        <tr><th>Cas</th><th>Solution</th><th>Pourquoi</th></tr>
+        <tr><td>POC academique</td><td>Small + LLM seul</td><td>EM=58%, simple</td></tr>
+        <tr><td>Production API</td><td>Small + Reranking</td><td>F1=0.49, meilleur F1</td></tr>
+        <tr><td>Local sans API</td><td>Phi-3 FT seul</td><td>EM=60%, 0.4s</td></tr>
+        <tr><td>A eviter</td><td>Mistral Large</td><td>F1=0.14, trop creatif</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content">
+      <h2>Limites & Perspectives</h2>
+      <div class="grid-2" style="gap:12px;margin:8px 0;">
+        <div class="card" style="padding:12px;">
+          <h3 style="font-size:1em;margin-bottom:6px;">Limites</h3>
+          <ul style="margin-left:16px;color:#475569;line-height:1.6;font-size:0.85em;">
+            <li>Dataset modeste (1461 questions)</li>
+            <li>Phi-3 mini (3.8B) seulement pour le FT</li>
+            <!-- <li>Pas d'OpenAI (comparaison incomplete)</li> -->
+          </ul>
+        </div>
+        <div class="card" style="padding:12px;">
+          <h3 style="font-size:1em;margin-bottom:6px;">Perspectives</h3>
+          <ul style="margin-left:16px;color:#475569;line-height:1.6;font-size:0.85em;">
+            <li>FT + RAG optimise</li>
+            <li>Detection hors-domaine</li>
+            <li>Evaluation via RAGAS (GPT-4 juge)</li>
+            <li>Fine-tuning sur Gemma 4 12B</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide">
+    <div class="slide-content" style="text-align:center;">
+      <h1 style="font-size:3em;">Merci</h1>
+      <div class="accent-bar" style="max-width:200px;margin:30px auto;"></div>
+      <div class="grid-3" style="margin-top:40px;">
+        <div class="card"><div class="big">6</div><div class="label">Approches</div></div>
+        <div class="card"><div class="big">3</div><div class="label">Modeles</div></div>
+        <div class="card"><div class="big">1461</div><div class="label">Questions</div></div>
+      </div>
+      <div class="meta" style="margin-top:30px;">Master GL 2025-2026</div>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="nav">
+  <button class="prev" onclick="changeSlide(-1)">Precedent</button>
+  <span class="counter" id="slideCounter">1 / 17</span>
+  <button class="next" onclick="changeSlide(1)">Suivant</button>
+</div>
+<div class="footer">Telecom RAG - Comparaison d'approches</div>
+
+<script>
+let currentSlide = 0;
+const totalSlides = 17;
+
+function changeSlide(dir) {
+  currentSlide += dir;
+  if (currentSlide < 0) currentSlide = totalSlides - 1;
+  if (currentSlide >= totalSlides) currentSlide = 0;
+  document.getElementById('slidesWrapper').style.transform = `translateX(-${currentSlide * 100}vw)`;
+  document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+});
+</script>
+
+</body>
+</html>
