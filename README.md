@@ -1,6 +1,25 @@
 # Telecom RAG - Comparaison d'approches de Question-Reponse
 
-Projet academique de Master en Intelligence Artificielle comparant 6 approches de Q&A dans le domaine des telecommunications 3GPP.
+Projet academique de Master en Genie Logiciel comparant 6 approches de Q&A dans le domaine des telecommunications 3GPP.
+
+## Resultats
+
+![EM par modele](presentation/graphiques/f1_modele_approche.png)
+*F1 Score par modele et approche*
+
+![EM par modele](presentation/graphiques/em_modele_approche.png)
+*Exact Match (%) par modele et approche*
+
+![Radar](presentation/graphiques/radar_modeles.png)
+*Radar comparatif des modeles*
+
+## Perspectives
+
+- Detection hors-domaine (refus intelligent des questions non-telecom)
+- Evaluation via RAGAS (metriques automatisees de qualite RAG)
+- Agentic RAG (pipeline dynamique)
+- Graph RAG (relations entre concepts 3GPP)
+- Fine-tuning sur Gemma 4 12B
 
 ## Approches comparees
 
