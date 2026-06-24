@@ -4,7 +4,7 @@ Projet academique de Master en Genie Logiciel comparant 6 approches de Q&A dans 
 
 ## Resultats
 
-![EM par modele](presentation/graphiques/f1_modele_approche.png)
+![F1 par modele](presentation/graphiques/f1_modele_approche.png)
 *F1 Score par modele et approche*
 
 ![EM par modele](presentation/graphiques/em_modele_approche.png)
